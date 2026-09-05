@@ -86,6 +86,32 @@ fn withdraw_equal_to_max_succeeds(){
 }
 
 #[test]
+fn withdraw_less_than_max_succeeds(){
+    let mut svm = setup_svm();
+    let user = Keypair::new();
+    fund(&mut svm, &user.pubkey(), 500 * ONE_SOL);
+    
+    initialize_vault(&mut svm, &user, 100 * ONE_SOL);
+
+    send(
+        &mut svm,
+        &user,
+        &[build_deposit_ix(&user.pubkey(), 50 * ONE_SOL)],
+        &[],
+    )
+    .expect("deposit should succeed");
+
+    let withdraw_amount = 50 * ONE_SOL;
+    send(
+        &mut svm,
+        &user,
+        &[build_withdraw_ix(&user.pubkey(), withdraw_amount)],
+        &[],
+    )
+    .expect("withdraw less than max should succeed");
+}
+
+#[test]
 fn withdraw_more_than_max_fails(){
     let mut svm = setup_svm();
     let user = Keypair::new();
